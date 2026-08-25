@@ -4,62 +4,51 @@ using UnityEngine;
 [RequireComponent(typeof(PuloJogador))]
 public class AnimadorJogador : MonoBehaviour
 {
-    private enum PlayerState
+    private enum EstadoDoJogador
     {
-        Idle,
-        Run,
-        jumping,
-        falling,
+        Parado,
+        Correndo,
+        Caindo,
+        Pulando
     }
-
     private Animator animator;
     private MovimentoJogador movimento;
     private PuloJogador pulo;
-    private PlayerState currentState;
+    private EstadoDoJogador estadoAtual;
 
     private void Awake()
     {
-        movimento = GetComponent<MovimentoJogador>();
         animator = GetComponent<Animator>();
+        movimento = GetComponent<MovimentoJogador>();
         pulo = GetComponent<PuloJogador>();
     }
-
     private void Update()
     {
-        PlayerState newState = SetState();
+        EstadoDoJogador novoEstado = DecidirEstado();
 
-        if (newState != currentState)
+        if (novoEstado != estadoAtual)
         {
-            currentState = newState;
-            animator.Play(currentState.ToString());
+            estadoAtual = novoEstado;
+            animator.Play(estadoAtual.ToString());
         }
-
-
     }
-
-    private PlayerState SetState()
+    private EstadoDoJogador DecidirEstado()
     {
+
         if (movimento.EstaAndando && pulo.EstaNoCha)
         {
-            return PlayerState.Run;
-        }
-
-        if (!pulo.EstaNoCha)
-        {
-            return PlayerState.jumping;
-        }
-
-
-        if (pulo.EstaSubindo)
-        {
-            return PlayerState.jumping;
+            return EstadoDoJogador.Correndo;
         }
         if (pulo.EstaCaindo)
         {
-            return PlayerState.falling;
+            return EstadoDoJogador.Caindo;
+        }
+        if (pulo.EstaSubindo)
+        {
+            return EstadoDoJogador.Pulando;
         }
 
-        return PlayerState.Idle;
-    }
+        return EstadoDoJogador.Parado;
 
+    }
 }
